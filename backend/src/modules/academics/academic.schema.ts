@@ -84,3 +84,100 @@ export const updateStreamSchema = z.object({
 export type CreateStreamInput = z.infer<typeof createStreamSchema>;
 
 export type UpdateStreamInput = z.infer<typeof updateStreamSchema>;
+
+export const createClassSchema = z.object({
+  teacherId: z.string().uuid(),
+
+  subjectId: z.string().uuid(),
+
+  gradeId: z.string().uuid(),
+
+  streamId: z.string().uuid().optional(),
+
+  name: z.string().trim().min(2).max(150),
+
+  code: academicCodeSchema,
+
+  monthlyFee: z.number().nonnegative().optional(),
+
+  capacity: z.number().int().positive().optional(),
+
+  deliveryMode: z
+    .enum(["physical", "online", "hybrid"])
+    .default("physical"),
+
+  startsAt: z.string().datetime().optional(),
+
+  endsAt: z.string().datetime().optional(),
+});
+
+export const updateClassSchema = z.object({
+  teacherId: z.string().uuid().optional(),
+
+  subjectId: z.string().uuid().optional(),
+
+  gradeId: z.string().uuid().optional(),
+
+  streamId: z.string().uuid().nullable().optional(),
+
+  name: z.string().trim().min(2).max(150).optional(),
+
+  code: academicCodeSchema.optional(),
+
+  monthlyFee: z.number().nonnegative().nullable().optional(),
+
+  capacity: z.number().int().positive().nullable().optional(),
+
+  deliveryMode: z
+    .enum(["physical", "online", "hybrid"])
+    .optional(),
+
+  status: z
+    .enum([
+      "draft",
+      "active",
+      "completed",
+      "cancelled",
+      "archived",
+    ])
+    .optional(),
+
+  startsAt: z.string().datetime().nullable().optional(),
+
+  endsAt: z.string().datetime().nullable().optional(),
+});
+
+export type CreateClassInput = z.infer<
+  typeof createClassSchema
+>;
+
+export type UpdateClassInput = z.infer<
+  typeof updateClassSchema
+>;
+
+export const createSubjectSchema = z.object({
+  name: z.string().trim().min(1).max(100),
+
+  code: academicCodeSchema,
+
+  description: z.string().trim().max(500).optional(),
+});
+
+export const updateSubjectSchema = z.object({
+  name: z.string().trim().min(1).max(100).optional(),
+
+  code: academicCodeSchema.optional(),
+
+  description: z.string().trim().max(500).optional(),
+
+  status: z.enum(["active", "inactive"]).optional(),
+});
+
+export type CreateSubjectInput = z.infer<
+  typeof createSubjectSchema
+>;
+
+export type UpdateSubjectInput = z.infer<
+  typeof updateSubjectSchema
+>;
+

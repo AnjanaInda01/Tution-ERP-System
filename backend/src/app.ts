@@ -8,6 +8,9 @@ import { healthRouter } from "./routes/health.js";
 import { authRouter } from "./modules/auth/auth.routes.js";
 import { instituteRouter } from "./modules/institutes/institute.routes.js";
 import { academicRouter } from "./modules/academics/academic.routes.js";
+import { teacherRouter } from "./modules/teachers/teacher.routes.js";
+import { classRouter } from "./modules/classes/class.routes.js";
+import { studentRouter } from "./modules/students/student.routes.js";
 
 export function createApp() {
   const app = express();
@@ -26,6 +29,9 @@ export function createApp() {
   app.use("/api/auth", authRouter);
   app.use("/api/institute", instituteRouter);
   app.use("/api/academic", academicRouter);
+  app.use("/api/teachers", teacherRouter);
+  app.use("/api/classes", classRouter);
+  app.use("/api/students", studentRouter);
 
   app.use((_request, response) => {
     response.status(404).json({ error: "Route not found" });
