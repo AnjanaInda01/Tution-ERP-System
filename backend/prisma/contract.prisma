@@ -109,6 +109,33 @@ enum enrollment_status {
   cancelled = "cancelled"
 }
 
+enum invoice_status {
+  @@type("pg/text@1")
+
+  pending = "pending"
+  partially_paid = "partially_paid"
+  paid = "paid"
+  cancelled = "cancelled"
+  overdue = "overdue"
+}
+
+enum payment_method {
+  @@type("pg/text@1")
+
+  cash = "cash"
+  bank_transfer = "bank_transfer"
+  online = "online"
+}
+
+enum payment_status {
+  @@type("pg/text@1")
+
+  pending = "pending"
+  completed = "completed"
+  failed = "failed"
+  refunded = "refunded"
+}
+
 model Enrollment {
   id          String            @id @default(uuid())
   instituteId String
@@ -128,6 +155,9 @@ model Enrollment {
     fields: [classId, instituteId],
     references: [id, instituteId]
   )
+  
+  invoices Invoice[]
+  payments Payment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
@@ -137,6 +167,93 @@ model Enrollment {
   @@index([instituteId, status])
   @@index([instituteId, studentId])
   @@index([instituteId, classId])
+}
+
+model Invoice {
+  id           String         @id @default(uuid())
+  instituteId  String
+  studentId    String
+  enrollmentId String
+
+  billingYear  Int
+  billingMonth Int
+
+  amount             Decimal
+  teacherPercentage  Decimal
+  institutePercentage Decimal
+
+  status       invoice_status @default(pending)
+  dueDate      DateTime?
+  description  String?
+
+  student Student @relation(
+    fields: [studentId, instituteId],
+    references: [id, instituteId]
+  )
+
+  enrollment Enrollment @relation(
+    fields: [enrollmentId, instituteId],
+    references: [id, instituteId]
+  )
+  payments Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@unique([id, instituteId])
+  @@unique([enrollmentId, billingYear, billingMonth])
+  @@index([instituteId, status])
+  @@index([instituteId, studentId])
+  @@index([instituteId, enrollmentId])
+  @@index([instituteId, billingYear, billingMonth])
+}
+
+model Payment {
+  id          String         @id @default(uuid())
+  instituteId String
+  invoiceId   String
+  studentId   String
+  enrollmentId String
+
+  amount      Decimal
+
+  teacherPercentage   Decimal
+  institutePercentage Decimal
+
+  teacherAmount   Decimal
+  instituteAmount Decimal
+
+  method       payment_method
+  status       payment_status @default(completed)
+
+  paymentDate  DateTime      @default(now())
+  reference    String?
+  notes        String?
+
+  invoice Invoice @relation(
+    fields: [invoiceId, instituteId],
+    references: [id, instituteId]
+  )
+
+  student Student @relation(
+    fields: [studentId, instituteId],
+    references: [id, instituteId]
+  )
+
+  enrollment Enrollment @relation(
+    fields: [enrollmentId, instituteId],
+    references: [id, instituteId]
+  )
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@unique([id, instituteId])
+  @@index([instituteId, invoiceId])
+  @@index([instituteId, studentId])
+  @@index([instituteId, enrollmentId])
+  @@index([instituteId, status])
+  @@index([instituteId, paymentDate])
 }
 
 model Class {
@@ -151,6 +268,9 @@ model Class {
   code          String
   monthlyFee    Decimal?
   capacity      Int?
+  teacherPercentage   Decimal       @default("80")
+  institutePercentage Decimal       @default("20")
+
   deliveryMode  delivery_mode @default(physical)
   status        class_status  @default(draft)
   startsAt      DateTime?
@@ -295,6 +415,9 @@ model Student {
     fields: [membershipId, instituteId],
     references: [id, instituteId]
   )
+
+  invoices Invoice[]
+  payments Payment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
