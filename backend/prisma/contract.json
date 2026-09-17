@@ -36,6 +36,14 @@
       "model": "InstituteMembership",
       "namespace": "public"
     },
+    "invoice": {
+      "model": "Invoice",
+      "namespace": "public"
+    },
+    "payment": {
+      "model": "Payment",
+      "namespace": "public"
+    },
     "staff": {
       "model": "Staff",
       "namespace": "public"
@@ -183,6 +191,31 @@
               }
             ]
           },
+          "invoice_status": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "pending",
+                "value": "pending"
+              },
+              {
+                "name": "partially_paid",
+                "value": "partially_paid"
+              },
+              {
+                "name": "paid",
+                "value": "paid"
+              },
+              {
+                "name": "cancelled",
+                "value": "cancelled"
+              },
+              {
+                "name": "overdue",
+                "value": "overdue"
+              }
+            ]
+          },
           "membership_role": {
             "codecId": "pg/text@1",
             "members": [
@@ -222,6 +255,44 @@
               {
                 "name": "inactive",
                 "value": "inactive"
+              }
+            ]
+          },
+          "payment_method": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "cash",
+                "value": "cash"
+              },
+              {
+                "name": "bank_transfer",
+                "value": "bank_transfer"
+              },
+              {
+                "name": "online",
+                "value": "online"
+              }
+            ]
+          },
+          "payment_status": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "pending",
+                "value": "pending"
+              },
+              {
+                "name": "completed",
+                "value": "completed"
+              },
+              {
+                "name": "failed",
+                "value": "failed"
+              },
+              {
+                "name": "refunded",
+                "value": "refunded"
               }
             ]
           },
@@ -512,6 +583,13 @@
                   "kind": "scalar"
                 }
               },
+              "institutePercentage": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar"
+                }
+              },
               "monthlyFee": {
                 "nullable": true,
                 "type": {
@@ -564,6 +642,13 @@
                 "nullable": false,
                 "type": {
                   "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "teacherPercentage": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
                   "kind": "scalar"
                 }
               },
@@ -671,6 +756,9 @@
                 "instituteId": {
                   "column": "instituteId"
                 },
+                "institutePercentage": {
+                  "column": "institutePercentage"
+                },
                 "monthlyFee": {
                   "column": "monthlyFee"
                 },
@@ -691,6 +779,9 @@
                 },
                 "teacherId": {
                   "column": "teacherId"
+                },
+                "teacherPercentage": {
+                  "column": "teacherPercentage"
                 },
                 "updatedAt": {
                   "column": "updatedAt"
@@ -1042,6 +1133,40 @@
                 },
                 "to": {
                   "model": "Class",
+                  "namespace": "public"
+                }
+              },
+              "invoices": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id",
+                    "instituteId"
+                  ],
+                  "targetFields": [
+                    "enrollmentId",
+                    "instituteId"
+                  ]
+                },
+                "to": {
+                  "model": "Invoice",
+                  "namespace": "public"
+                }
+              },
+              "payments": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id",
+                    "instituteId"
+                  ],
+                  "targetFields": [
+                    "enrollmentId",
+                    "instituteId"
+                  ]
+                },
+                "to": {
+                  "model": "Payment",
                   "namespace": "public"
                 }
               },
@@ -1476,6 +1601,460 @@
               "table": "instituteMembership"
             }
           },
+          "Invoice": {
+            "fields": {
+              "amount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar"
+                }
+              },
+              "billingMonth": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "billingYear": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "description": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "dueDate": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "enrollmentId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "instituteId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "institutePercentage": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "invoice_status",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "studentId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "teacherPercentage": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "enrollment": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "enrollmentId",
+                    "instituteId"
+                  ],
+                  "targetFields": [
+                    "id",
+                    "instituteId"
+                  ]
+                },
+                "to": {
+                  "model": "Enrollment",
+                  "namespace": "public"
+                }
+              },
+              "payments": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id",
+                    "instituteId"
+                  ],
+                  "targetFields": [
+                    "invoiceId",
+                    "instituteId"
+                  ]
+                },
+                "to": {
+                  "model": "Payment",
+                  "namespace": "public"
+                }
+              },
+              "student": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "studentId",
+                    "instituteId"
+                  ],
+                  "targetFields": [
+                    "id",
+                    "instituteId"
+                  ]
+                },
+                "to": {
+                  "model": "Student",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "amount": {
+                  "column": "amount"
+                },
+                "billingMonth": {
+                  "column": "billingMonth"
+                },
+                "billingYear": {
+                  "column": "billingYear"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "description": {
+                  "column": "description"
+                },
+                "dueDate": {
+                  "column": "dueDate"
+                },
+                "enrollmentId": {
+                  "column": "enrollmentId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "instituteId": {
+                  "column": "instituteId"
+                },
+                "institutePercentage": {
+                  "column": "institutePercentage"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "studentId": {
+                  "column": "studentId"
+                },
+                "teacherPercentage": {
+                  "column": "teacherPercentage"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "invoice"
+            }
+          },
+          "Payment": {
+            "fields": {
+              "amount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "enrollmentId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "instituteAmount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar"
+                }
+              },
+              "instituteId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "institutePercentage": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar"
+                }
+              },
+              "invoiceId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "method": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "payment_method",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "notes": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "paymentDate": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "reference": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "payment_status",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "studentId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "teacherAmount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar"
+                }
+              },
+              "teacherPercentage": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "enrollment": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "enrollmentId",
+                    "instituteId"
+                  ],
+                  "targetFields": [
+                    "id",
+                    "instituteId"
+                  ]
+                },
+                "to": {
+                  "model": "Enrollment",
+                  "namespace": "public"
+                }
+              },
+              "invoice": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "invoiceId",
+                    "instituteId"
+                  ],
+                  "targetFields": [
+                    "id",
+                    "instituteId"
+                  ]
+                },
+                "to": {
+                  "model": "Invoice",
+                  "namespace": "public"
+                }
+              },
+              "student": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "studentId",
+                    "instituteId"
+                  ],
+                  "targetFields": [
+                    "id",
+                    "instituteId"
+                  ]
+                },
+                "to": {
+                  "model": "Student",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "amount": {
+                  "column": "amount"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "enrollmentId": {
+                  "column": "enrollmentId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "instituteAmount": {
+                  "column": "instituteAmount"
+                },
+                "instituteId": {
+                  "column": "instituteId"
+                },
+                "institutePercentage": {
+                  "column": "institutePercentage"
+                },
+                "invoiceId": {
+                  "column": "invoiceId"
+                },
+                "method": {
+                  "column": "method"
+                },
+                "notes": {
+                  "column": "notes"
+                },
+                "paymentDate": {
+                  "column": "paymentDate"
+                },
+                "reference": {
+                  "column": "reference"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "studentId": {
+                  "column": "studentId"
+                },
+                "teacherAmount": {
+                  "column": "teacherAmount"
+                },
+                "teacherPercentage": {
+                  "column": "teacherPercentage"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "payment"
+            }
+          },
           "Staff": {
             "fields": {
               "createdAt": {
@@ -1840,6 +2419,23 @@
               }
             },
             "relations": {
+              "invoices": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id",
+                    "instituteId"
+                  ],
+                  "targetFields": [
+                    "studentId",
+                    "instituteId"
+                  ]
+                },
+                "to": {
+                  "model": "Invoice",
+                  "namespace": "public"
+                }
+              },
               "membership": {
                 "cardinality": "N:1",
                 "on": {
@@ -1854,6 +2450,23 @@
                 },
                 "to": {
                   "model": "InstituteMembership",
+                  "namespace": "public"
+                }
+              },
+              "payments": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id",
+                    "instituteId"
+                  ],
+                  "targetFields": [
+                    "studentId",
+                    "instituteId"
+                  ]
+                },
+                "to": {
+                  "model": "Payment",
                   "namespace": "public"
                 }
               }
@@ -2483,6 +3096,15 @@
                   "nativeType": "text",
                   "nullable": false
                 },
+                "institutePercentage": {
+                  "codecId": "pg/numeric@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "20"
+                  },
+                  "nativeType": "numeric",
+                  "nullable": false
+                },
                 "monthlyFee": {
                   "codecId": "pg/numeric@1",
                   "nativeType": "numeric",
@@ -2526,6 +3148,15 @@
                 "teacherId": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
+                  "nullable": false
+                },
+                "teacherPercentage": {
+                  "codecId": "pg/numeric@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "80"
+                  },
+                  "nativeType": "numeric",
                   "nullable": false
                 },
                 "updatedAt": {
@@ -3553,6 +4184,492 @@
                 }
               ]
             },
+            "invoice": {
+              "checks": [
+                {
+                  "expression": "\"status\" IN ('pending', 'partially_paid', 'paid', 'cancelled', 'overdue')",
+                  "name": "invoice_status_check_5cf8596f",
+                  "prefix": "invoice_status_check"
+                }
+              ],
+              "columns": {
+                "amount": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": false
+                },
+                "billingMonth": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "billingYear": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "description": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "dueDate": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "enrollmentId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "instituteId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "institutePercentage": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "pending"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "invoice_status",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "studentId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "teacherPercentage": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "studentId",
+                      "instituteId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "invoice"
+                  },
+                  "target": {
+                    "columns": [
+                      "id",
+                      "instituteId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "student"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "enrollmentId",
+                      "instituteId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "invoice"
+                  },
+                  "target": {
+                    "columns": [
+                      "id",
+                      "instituteId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "enrollment"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "enrollmentId",
+                    "instituteId"
+                  ],
+                  "name": "invoice_enrollmentId_instituteId_idx_01dade96",
+                  "prefix": "invoice_enrollmentId_instituteId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "instituteId",
+                    "billingYear",
+                    "billingMonth"
+                  ],
+                  "name": "invoice_instituteId_billingYear_billingMonth_idx_ed325102",
+                  "prefix": "invoice_instituteId_billingYear_billingMonth_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "instituteId",
+                    "enrollmentId"
+                  ],
+                  "name": "invoice_instituteId_enrollmentId_idx_78805778",
+                  "prefix": "invoice_instituteId_enrollmentId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "instituteId",
+                    "status"
+                  ],
+                  "name": "invoice_instituteId_status_idx_b5328fd7",
+                  "prefix": "invoice_instituteId_status_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "instituteId",
+                    "studentId"
+                  ],
+                  "name": "invoice_instituteId_studentId_idx_aedbc27b",
+                  "prefix": "invoice_instituteId_studentId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "studentId",
+                    "instituteId"
+                  ],
+                  "name": "invoice_studentId_instituteId_idx_77a018a9",
+                  "prefix": "invoice_studentId_instituteId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "id",
+                    "instituteId"
+                  ]
+                },
+                {
+                  "columns": [
+                    "enrollmentId",
+                    "billingYear",
+                    "billingMonth"
+                  ]
+                }
+              ]
+            },
+            "payment": {
+              "checks": [
+                {
+                  "expression": "\"method\" IN ('cash', 'bank_transfer', 'online')",
+                  "name": "payment_method_check_68ce692b",
+                  "prefix": "payment_method_check"
+                },
+                {
+                  "expression": "\"status\" IN ('pending', 'completed', 'failed', 'refunded')",
+                  "name": "payment_status_check_77ba2498",
+                  "prefix": "payment_status_check"
+                }
+              ],
+              "columns": {
+                "amount": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "enrollmentId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "instituteAmount": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": false
+                },
+                "instituteId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "institutePercentage": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": false
+                },
+                "invoiceId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "method": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "payment_method",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "notes": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "paymentDate": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "reference": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "completed"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "payment_status",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "studentId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "teacherAmount": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": false
+                },
+                "teacherPercentage": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "invoiceId",
+                      "instituteId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "payment"
+                  },
+                  "target": {
+                    "columns": [
+                      "id",
+                      "instituteId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "invoice"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "studentId",
+                      "instituteId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "payment"
+                  },
+                  "target": {
+                    "columns": [
+                      "id",
+                      "instituteId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "student"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "enrollmentId",
+                      "instituteId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "payment"
+                  },
+                  "target": {
+                    "columns": [
+                      "id",
+                      "instituteId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "enrollment"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "enrollmentId",
+                    "instituteId"
+                  ],
+                  "name": "payment_enrollmentId_instituteId_idx_01dade96",
+                  "prefix": "payment_enrollmentId_instituteId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "instituteId",
+                    "enrollmentId"
+                  ],
+                  "name": "payment_instituteId_enrollmentId_idx_78805778",
+                  "prefix": "payment_instituteId_enrollmentId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "instituteId",
+                    "invoiceId"
+                  ],
+                  "name": "payment_instituteId_invoiceId_idx_8eb6f346",
+                  "prefix": "payment_instituteId_invoiceId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "instituteId",
+                    "paymentDate"
+                  ],
+                  "name": "payment_instituteId_paymentDate_idx_9f2427e7",
+                  "prefix": "payment_instituteId_paymentDate_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "instituteId",
+                    "status"
+                  ],
+                  "name": "payment_instituteId_status_idx_b5328fd7",
+                  "prefix": "payment_instituteId_status_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "instituteId",
+                    "studentId"
+                  ],
+                  "name": "payment_instituteId_studentId_idx_aedbc27b",
+                  "prefix": "payment_instituteId_studentId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "invoiceId",
+                    "instituteId"
+                  ],
+                  "name": "payment_invoiceId_instituteId_idx_1e502765",
+                  "prefix": "payment_invoiceId_instituteId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "studentId",
+                    "instituteId"
+                  ],
+                  "name": "payment_studentId_instituteId_idx_77a018a9",
+                  "prefix": "payment_studentId_instituteId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "id",
+                    "instituteId"
+                  ]
+                }
+              ]
+            },
             "staff": {
               "checks": [
                 {
@@ -4434,6 +5551,16 @@
                 "trial"
               ]
             },
+            "invoice_status": {
+              "kind": "valueSet",
+              "values": [
+                "pending",
+                "partially_paid",
+                "paid",
+                "cancelled",
+                "overdue"
+              ]
+            },
             "membership_role": {
               "kind": "valueSet",
               "values": [
@@ -4450,6 +5577,23 @@
                 "invited",
                 "suspended",
                 "inactive"
+              ]
+            },
+            "payment_method": {
+              "kind": "valueSet",
+              "values": [
+                "cash",
+                "bank_transfer",
+                "online"
+              ]
+            },
+            "payment_status": {
+              "kind": "valueSet",
+              "values": [
+                "pending",
+                "completed",
+                "failed",
+                "refunded"
               ]
             },
             "profile_status": {
@@ -4499,10 +5643,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "df399714cd644f18f20f1566e8883e4db071bccc0e93c26f38cefff6de0f53dd"
+    "storageHash": "05e2c9f81b7e6677d078f1eb4931fec3f708e8c85980380d7224288c8cc45718"
   },
   "execution": {
-    "executionHash": "c147183561b1b3945219b63a1c1d6f7c93d91b97cdc234e2c0f7072b97916243",
+    "executionHash": "25ced3a062073c54d263abcead826bdcc90d85e5b8c512810d8d6f5f03cc6572",
     "mutations": {
       "defaults": [
         {
@@ -4591,6 +5735,28 @@
             "column": "id",
             "namespace": "public",
             "table": "instituteMembership"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "invoice"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "payment"
           }
         },
         {
