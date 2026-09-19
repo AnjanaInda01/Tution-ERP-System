@@ -135,6 +135,14 @@ enum payment_status {
   failed = "failed"
   refunded = "refunded"
 }
+enum attendance_status {
+  @@type("pg/text@1")
+
+  present = "present"
+  absent  = "absent"
+  late    = "late"
+  excused = "excused"
+}
 
 model Enrollment {
   id          String            @id @default(uuid())
@@ -295,6 +303,7 @@ model Class {
     fields: [streamId, instituteId],
     references: [id, instituteId]
   )
+  attendanceSessions AttendanceSession[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
@@ -326,6 +335,64 @@ model ClassSchedule {
 
   @@index([instituteId, classId])
   @@index([instituteId, day])
+}
+
+model AttendanceSession {
+  id          String   @id @default(uuid())
+  instituteId String
+  classId     String
+
+  sessionDate DateTime
+  startTime   String?
+  endTime     String?
+
+  notes       String?
+
+  class Class @relation(
+    fields: [classId, instituteId],
+    references: [id, instituteId],
+    onDelete: Cascade
+  )
+
+  records AttendanceRecord[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@unique([id, instituteId])
+  @@unique([classId, sessionDate])
+  @@index([instituteId, classId])
+  @@index([instituteId, sessionDate])
+}
+
+model AttendanceRecord {
+  id          String            @id @default(uuid())
+  instituteId String
+  sessionId   String
+  studentId   String
+
+  status      attendance_status @default(present)
+  remarks     String?
+
+  session AttendanceSession @relation(
+    fields: [sessionId, instituteId],
+    references: [id, instituteId],
+    onDelete: Cascade
+  )
+
+  student Student @relation(
+    fields: [studentId, instituteId],
+    references: [id, instituteId]
+  )
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@unique([id, instituteId])
+  @@unique([sessionId, studentId])
+  @@index([instituteId, sessionId])
+  @@index([instituteId, studentId])
+  @@index([instituteId, status])
 }
 
 model Institute {
@@ -418,6 +485,7 @@ model Student {
 
   invoices Invoice[]
   payments Payment[]
+  attendanceRecords AttendanceRecord[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
