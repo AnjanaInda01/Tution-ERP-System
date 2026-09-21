@@ -15,6 +15,7 @@ import { enrollmentRouter } from "./modules/enrollments/enrollment.routes.js";
 import { invoiceRouter } from "./modules/payments/invoice.routes.js";
 import { paymentRouter } from "./modules/payments/payment.routes.js";
 import { financialRouter } from "./modules/payments/financial.routes.js";
+import { attendanceRouter } from "./modules/attendance/attendance.routes.js";
 
 export function createApp() {
   const app = express();
@@ -40,6 +41,7 @@ export function createApp() {
   app.use("/api/invoices", invoiceRouter);
   app.use("/api/payments", paymentRouter);
   app.use("/api/financial", financialRouter);
+  app.use("/api/attendance", attendanceRouter);
 
   app.use((_request, response) => {
     response.status(404).json({ error: "Route not found" });
