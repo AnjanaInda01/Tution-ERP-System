@@ -48,6 +48,10 @@
       "model": "Invoice",
       "namespace": "public"
     },
+    "learningContent": {
+      "model": "LearningContent",
+      "namespace": "public"
+    },
     "payment": {
       "model": "Payment",
       "namespace": "public"
@@ -242,6 +246,27 @@
               {
                 "name": "overdue",
                 "value": "overdue"
+              }
+            ]
+          },
+          "learning_content_type": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "video",
+                "value": "video"
+              },
+              {
+                "name": "note",
+                "value": "note"
+              },
+              {
+                "name": "paper",
+                "value": "paper"
+              },
+              {
+                "name": "other",
+                "value": "other"
               }
             ]
           },
@@ -989,6 +1014,23 @@
                 },
                 "to": {
                   "model": "Grade",
+                  "namespace": "public"
+                }
+              },
+              "learningContents": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id",
+                    "instituteId"
+                  ],
+                  "targetFields": [
+                    "classId",
+                    "instituteId"
+                  ]
+                },
+                "to": {
+                  "model": "LearningContent",
                   "namespace": "public"
                 }
               },
@@ -2122,6 +2164,181 @@
               },
               "namespaceId": "public",
               "table": "invoice"
+            }
+          },
+          "LearningContent": {
+            "fields": {
+              "classId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "contentType": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "learning_content_type",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "description": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "durationMinutes": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "fileUrl": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "instituteId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "isPublished": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "publishedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "sortOrder": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "thumbnailUrl": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "title": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "class": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "classId",
+                    "instituteId"
+                  ],
+                  "targetFields": [
+                    "id",
+                    "instituteId"
+                  ]
+                },
+                "to": {
+                  "model": "Class",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "classId": {
+                  "column": "classId"
+                },
+                "contentType": {
+                  "column": "contentType"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "description": {
+                  "column": "description"
+                },
+                "durationMinutes": {
+                  "column": "durationMinutes"
+                },
+                "fileUrl": {
+                  "column": "fileUrl"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "instituteId": {
+                  "column": "instituteId"
+                },
+                "isPublished": {
+                  "column": "isPublished"
+                },
+                "publishedAt": {
+                  "column": "publishedAt"
+                },
+                "sortOrder": {
+                  "column": "sortOrder"
+                },
+                "thumbnailUrl": {
+                  "column": "thumbnailUrl"
+                },
+                "title": {
+                  "column": "title"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "learningContent"
             }
           },
           "Payment": {
@@ -5029,6 +5246,190 @@
                 }
               ]
             },
+            "learningContent": {
+              "checks": [
+                {
+                  "expression": "\"contentType\" IN ('video', 'note', 'paper', 'other')",
+                  "name": "learningContent_contentType_check_071a92af",
+                  "prefix": "learningContent_contentType_check"
+                }
+              ],
+              "columns": {
+                "classId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "contentType": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "learning_content_type",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "description": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "durationMinutes": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "fileUrl": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "instituteId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "isPublished": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "publishedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "sortOrder": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "thumbnailUrl": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "title": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "classId",
+                      "instituteId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "learningContent"
+                  },
+                  "target": {
+                    "columns": [
+                      "id",
+                      "instituteId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "class"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "classId",
+                    "instituteId"
+                  ],
+                  "name": "learningContent_classId_instituteId_idx_4bc20ca6",
+                  "prefix": "learningContent_classId_instituteId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "instituteId",
+                    "classId"
+                  ],
+                  "name": "learningContent_instituteId_classId_idx_c38ab17c",
+                  "prefix": "learningContent_instituteId_classId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "instituteId",
+                    "contentType"
+                  ],
+                  "name": "learningContent_instituteId_contentType_idx_64b3e089",
+                  "prefix": "learningContent_instituteId_contentType_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "instituteId",
+                    "isPublished"
+                  ],
+                  "name": "learningContent_instituteId_isPublished_idx_a4e2c131",
+                  "prefix": "learningContent_instituteId_isPublished_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "instituteId",
+                    "sortOrder"
+                  ],
+                  "name": "learningContent_instituteId_sortOrder_idx_73eec6ed",
+                  "prefix": "learningContent_instituteId_sortOrder_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "id",
+                    "instituteId"
+                  ]
+                }
+              ]
+            },
             "payment": {
               "checks": [
                 {
@@ -6201,6 +6602,15 @@
                 "overdue"
               ]
             },
+            "learning_content_type": {
+              "kind": "valueSet",
+              "values": [
+                "video",
+                "note",
+                "paper",
+                "other"
+              ]
+            },
             "membership_role": {
               "kind": "valueSet",
               "values": [
@@ -6283,10 +6693,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "e3ed7b3f28db2c758220cfa590cd6653cffbe17e34daa9df2ce0ed58b2f16210"
+    "storageHash": "489221bef849a6485c9218d9a64a43ebf595d715a3d678eabf62fea2c99153b7"
   },
   "execution": {
-    "executionHash": "17e34df250472b90f87770d66650c06850494d77e122cb615557f0271e717bed",
+    "executionHash": "67e40a7e64b20d277c7a067a5d35650d3a8829d398c44ec0dd8bc06d8464d69e",
     "mutations": {
       "defaults": [
         {
@@ -6408,6 +6818,17 @@
             "column": "id",
             "namespace": "public",
             "table": "invoice"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "learningContent"
           }
         },
         {

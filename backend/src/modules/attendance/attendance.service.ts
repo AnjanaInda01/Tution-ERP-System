@@ -7,7 +7,7 @@ import type {
   UpdateAttendanceSessionInput,
 } from "./attendance.schema.js";
 import "temporal-polyfill/full/global";
-
+ 
 
 function sessionDateToInstant(sessionDate: string): Temporal.Instant {
   return Temporal.Instant.from(`${sessionDate}T00:00:00Z`);
