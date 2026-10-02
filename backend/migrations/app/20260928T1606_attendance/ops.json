@@ -1,0 +1,686 @@
+[
+  {
+    "id": "table.attendanceRecord",
+    "label": "Create table \"attendanceRecord\"",
+    "summary": "Creates table \"attendanceRecord\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "attendanceRecord"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"attendanceRecord\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceRecord\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"attendanceRecord\"",
+        "sql": "CREATE TABLE \"public\".\"attendanceRecord\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"instituteId\" text NOT NULL,\n  \"remarks\" text,\n  \"sessionId\" text NOT NULL,\n  \"status\" text DEFAULT 'present' NOT NULL,\n  \"studentId\" text NOT NULL,\n  \"updatedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"attendanceRecord_status_check_afe7ecd1\" CHECK (\"status\" IN ('present', 'absent', 'late', 'excused'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"attendanceRecord\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceRecord\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.attendanceSession",
+    "label": "Create table \"attendanceSession\"",
+    "summary": "Creates table \"attendanceSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "attendanceSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"attendanceSession\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceSession\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"attendanceSession\"",
+        "sql": "CREATE TABLE \"public\".\"attendanceSession\" (\n  \"classId\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"endTime\" text,\n  \"id\" text NOT NULL,\n  \"instituteId\" text NOT NULL,\n  \"notes\" text,\n  \"sessionDate\" timestamptz NOT NULL,\n  \"startTime\" text,\n  \"updatedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"attendanceSession\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceSession\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.attendanceRecord.attendanceRecord_id_instituteId_key",
+    "label": "Add unique constraint on \"attendanceRecord\" (id, instituteId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "attendanceRecord_id_instituteId_key",
+        "table": "attendanceRecord"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"attendanceRecord_id_instituteId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "attendanceRecord_id_instituteId_key",
+          "public",
+          "\"public\".\"attendanceRecord\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"attendanceRecord_id_instituteId_key\"",
+        "sql": "ALTER TABLE \"public\".\"attendanceRecord\" ADD CONSTRAINT \"attendanceRecord_id_instituteId_key\" UNIQUE (\"id\", \"instituteId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"attendanceRecord_id_instituteId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "attendanceRecord_id_instituteId_key",
+          "public",
+          "\"public\".\"attendanceRecord\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.attendanceRecord.attendanceRecord_sessionId_studentId_key",
+    "label": "Add unique constraint on \"attendanceRecord\" (sessionId, studentId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "attendanceRecord_sessionId_studentId_key",
+        "table": "attendanceRecord"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"attendanceRecord_sessionId_studentId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "attendanceRecord_sessionId_studentId_key",
+          "public",
+          "\"public\".\"attendanceRecord\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"attendanceRecord_sessionId_studentId_key\"",
+        "sql": "ALTER TABLE \"public\".\"attendanceRecord\" ADD CONSTRAINT \"attendanceRecord_sessionId_studentId_key\" UNIQUE (\"sessionId\", \"studentId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"attendanceRecord_sessionId_studentId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "attendanceRecord_sessionId_studentId_key",
+          "public",
+          "\"public\".\"attendanceRecord\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.attendanceSession.attendanceSession_id_instituteId_key",
+    "label": "Add unique constraint on \"attendanceSession\" (id, instituteId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "attendanceSession_id_instituteId_key",
+        "table": "attendanceSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"attendanceSession_id_instituteId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "attendanceSession_id_instituteId_key",
+          "public",
+          "\"public\".\"attendanceSession\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"attendanceSession_id_instituteId_key\"",
+        "sql": "ALTER TABLE \"public\".\"attendanceSession\" ADD CONSTRAINT \"attendanceSession_id_instituteId_key\" UNIQUE (\"id\", \"instituteId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"attendanceSession_id_instituteId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "attendanceSession_id_instituteId_key",
+          "public",
+          "\"public\".\"attendanceSession\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.attendanceSession.attendanceSession_classId_sessionDate_key",
+    "label": "Add unique constraint on \"attendanceSession\" (classId, sessionDate)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "attendanceSession_classId_sessionDate_key",
+        "table": "attendanceSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"attendanceSession_classId_sessionDate_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "attendanceSession_classId_sessionDate_key",
+          "public",
+          "\"public\".\"attendanceSession\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"attendanceSession_classId_sessionDate_key\"",
+        "sql": "ALTER TABLE \"public\".\"attendanceSession\" ADD CONSTRAINT \"attendanceSession_classId_sessionDate_key\" UNIQUE (\"classId\", \"sessionDate\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"attendanceSession_classId_sessionDate_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "attendanceSession_classId_sessionDate_key",
+          "public",
+          "\"public\".\"attendanceSession\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.attendanceRecord.attendanceRecord_instituteId_sessionId_idx_44bb6e8b",
+    "label": "Create index \"attendanceRecord_instituteId_sessionId_idx_44bb6e8b\" on \"attendanceRecord\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "attendanceRecord_instituteId_sessionId_idx_44bb6e8b",
+        "table": "attendanceRecord"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"attendanceRecord_instituteId_sessionId_idx_44bb6e8b\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceRecord_instituteId_sessionId_idx_44bb6e8b\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"attendanceRecord_instituteId_sessionId_idx_44bb6e8b\"",
+        "sql": "CREATE INDEX \"attendanceRecord_instituteId_sessionId_idx_44bb6e8b\" ON \"public\".\"attendanceRecord\" (\"instituteId\", \"sessionId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"attendanceRecord_instituteId_sessionId_idx_44bb6e8b\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceRecord_instituteId_sessionId_idx_44bb6e8b\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.attendanceRecord.attendanceRecord_instituteId_status_idx_b5328fd7",
+    "label": "Create index \"attendanceRecord_instituteId_status_idx_b5328fd7\" on \"attendanceRecord\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "attendanceRecord_instituteId_status_idx_b5328fd7",
+        "table": "attendanceRecord"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"attendanceRecord_instituteId_status_idx_b5328fd7\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceRecord_instituteId_status_idx_b5328fd7\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"attendanceRecord_instituteId_status_idx_b5328fd7\"",
+        "sql": "CREATE INDEX \"attendanceRecord_instituteId_status_idx_b5328fd7\" ON \"public\".\"attendanceRecord\" (\"instituteId\", \"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"attendanceRecord_instituteId_status_idx_b5328fd7\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceRecord_instituteId_status_idx_b5328fd7\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.attendanceRecord.attendanceRecord_instituteId_studentId_idx_aedbc27b",
+    "label": "Create index \"attendanceRecord_instituteId_studentId_idx_aedbc27b\" on \"attendanceRecord\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "attendanceRecord_instituteId_studentId_idx_aedbc27b",
+        "table": "attendanceRecord"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"attendanceRecord_instituteId_studentId_idx_aedbc27b\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceRecord_instituteId_studentId_idx_aedbc27b\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"attendanceRecord_instituteId_studentId_idx_aedbc27b\"",
+        "sql": "CREATE INDEX \"attendanceRecord_instituteId_studentId_idx_aedbc27b\" ON \"public\".\"attendanceRecord\" (\"instituteId\", \"studentId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"attendanceRecord_instituteId_studentId_idx_aedbc27b\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceRecord_instituteId_studentId_idx_aedbc27b\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.attendanceRecord.attendanceRecord_sessionId_instituteId_idx_87281735",
+    "label": "Create index \"attendanceRecord_sessionId_instituteId_idx_87281735\" on \"attendanceRecord\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "attendanceRecord_sessionId_instituteId_idx_87281735",
+        "table": "attendanceRecord"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"attendanceRecord_sessionId_instituteId_idx_87281735\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceRecord_sessionId_instituteId_idx_87281735\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"attendanceRecord_sessionId_instituteId_idx_87281735\"",
+        "sql": "CREATE INDEX \"attendanceRecord_sessionId_instituteId_idx_87281735\" ON \"public\".\"attendanceRecord\" (\"sessionId\", \"instituteId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"attendanceRecord_sessionId_instituteId_idx_87281735\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceRecord_sessionId_instituteId_idx_87281735\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.attendanceRecord.attendanceRecord_studentId_instituteId_idx_77a018a9",
+    "label": "Create index \"attendanceRecord_studentId_instituteId_idx_77a018a9\" on \"attendanceRecord\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "attendanceRecord_studentId_instituteId_idx_77a018a9",
+        "table": "attendanceRecord"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"attendanceRecord_studentId_instituteId_idx_77a018a9\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceRecord_studentId_instituteId_idx_77a018a9\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"attendanceRecord_studentId_instituteId_idx_77a018a9\"",
+        "sql": "CREATE INDEX \"attendanceRecord_studentId_instituteId_idx_77a018a9\" ON \"public\".\"attendanceRecord\" (\"studentId\", \"instituteId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"attendanceRecord_studentId_instituteId_idx_77a018a9\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceRecord_studentId_instituteId_idx_77a018a9\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.attendanceSession.attendanceSession_classId_instituteId_idx_4bc20ca6",
+    "label": "Create index \"attendanceSession_classId_instituteId_idx_4bc20ca6\" on \"attendanceSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "attendanceSession_classId_instituteId_idx_4bc20ca6",
+        "table": "attendanceSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"attendanceSession_classId_instituteId_idx_4bc20ca6\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceSession_classId_instituteId_idx_4bc20ca6\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"attendanceSession_classId_instituteId_idx_4bc20ca6\"",
+        "sql": "CREATE INDEX \"attendanceSession_classId_instituteId_idx_4bc20ca6\" ON \"public\".\"attendanceSession\" (\"classId\", \"instituteId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"attendanceSession_classId_instituteId_idx_4bc20ca6\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceSession_classId_instituteId_idx_4bc20ca6\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.attendanceSession.attendanceSession_instituteId_classId_idx_c38ab17c",
+    "label": "Create index \"attendanceSession_instituteId_classId_idx_c38ab17c\" on \"attendanceSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "attendanceSession_instituteId_classId_idx_c38ab17c",
+        "table": "attendanceSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"attendanceSession_instituteId_classId_idx_c38ab17c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceSession_instituteId_classId_idx_c38ab17c\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"attendanceSession_instituteId_classId_idx_c38ab17c\"",
+        "sql": "CREATE INDEX \"attendanceSession_instituteId_classId_idx_c38ab17c\" ON \"public\".\"attendanceSession\" (\"instituteId\", \"classId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"attendanceSession_instituteId_classId_idx_c38ab17c\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceSession_instituteId_classId_idx_c38ab17c\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.attendanceSession.attendanceSession_instituteId_sessionDate_idx_f5f3913c",
+    "label": "Create index \"attendanceSession_instituteId_sessionDate_idx_f5f3913c\" on \"attendanceSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "attendanceSession_instituteId_sessionDate_idx_f5f3913c",
+        "table": "attendanceSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"attendanceSession_instituteId_sessionDate_idx_f5f3913c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceSession_instituteId_sessionDate_idx_f5f3913c\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"attendanceSession_instituteId_sessionDate_idx_f5f3913c\"",
+        "sql": "CREATE INDEX \"attendanceSession_instituteId_sessionDate_idx_f5f3913c\" ON \"public\".\"attendanceSession\" (\"instituteId\", \"sessionDate\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"attendanceSession_instituteId_sessionDate_idx_f5f3913c\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attendanceSession_instituteId_sessionDate_idx_f5f3913c\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.attendanceSession.attendanceSession_classId_instituteId_fkey",
+    "label": "Add foreign key \"attendanceSession_classId_instituteId_fkey\" on \"attendanceSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "attendanceSession_classId_instituteId_fkey",
+        "table": "attendanceSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"attendanceSession_classId_instituteId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "attendanceSession_classId_instituteId_fkey",
+          "public",
+          "\"public\".\"attendanceSession\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"attendanceSession_classId_instituteId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"attendanceSession\"\nADD CONSTRAINT \"attendanceSession_classId_instituteId_fkey\"\nFOREIGN KEY (\"classId\", \"instituteId\")\nREFERENCES \"public\".\"class\" (\"id\", \"instituteId\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"attendanceSession_classId_instituteId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "attendanceSession_classId_instituteId_fkey",
+          "public",
+          "\"public\".\"attendanceSession\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.attendanceRecord.attendanceRecord_sessionId_instituteId_fkey",
+    "label": "Add foreign key \"attendanceRecord_sessionId_instituteId_fkey\" on \"attendanceRecord\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "attendanceRecord_sessionId_instituteId_fkey",
+        "table": "attendanceRecord"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"attendanceRecord_sessionId_instituteId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "attendanceRecord_sessionId_instituteId_fkey",
+          "public",
+          "\"public\".\"attendanceRecord\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"attendanceRecord_sessionId_instituteId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"attendanceRecord\"\nADD CONSTRAINT \"attendanceRecord_sessionId_instituteId_fkey\"\nFOREIGN KEY (\"sessionId\", \"instituteId\")\nREFERENCES \"public\".\"attendanceSession\" (\"id\", \"instituteId\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"attendanceRecord_sessionId_instituteId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "attendanceRecord_sessionId_instituteId_fkey",
+          "public",
+          "\"public\".\"attendanceRecord\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.attendanceRecord.attendanceRecord_studentId_instituteId_fkey",
+    "label": "Add foreign key \"attendanceRecord_studentId_instituteId_fkey\" on \"attendanceRecord\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "attendanceRecord_studentId_instituteId_fkey",
+        "table": "attendanceRecord"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"attendanceRecord_studentId_instituteId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "attendanceRecord_studentId_instituteId_fkey",
+          "public",
+          "\"public\".\"attendanceRecord\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"attendanceRecord_studentId_instituteId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"attendanceRecord\"\nADD CONSTRAINT \"attendanceRecord_studentId_instituteId_fkey\"\nFOREIGN KEY (\"studentId\", \"instituteId\")\nREFERENCES \"public\".\"student\" (\"id\", \"instituteId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"attendanceRecord_studentId_instituteId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "attendanceRecord_studentId_instituteId_fkey",
+          "public",
+          "\"public\".\"attendanceRecord\""
+        ]
+      }
+    ]
+  }
+]

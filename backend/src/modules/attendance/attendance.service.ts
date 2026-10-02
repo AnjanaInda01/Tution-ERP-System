@@ -1,4 +1,5 @@
 import { db } from "../../db/db.js";
+import type { AuthContext } from "../../middleware/auth.middleware.js";
 import type {
   CreateAttendanceRecordInput,
   CreateAttendanceSessionInput,
@@ -6,12 +7,7 @@ import type {
   UpdateAttendanceSessionInput,
 } from "./attendance.schema.js";
 import "temporal-polyfill/full/global";
-
-type AuthContext = {
-  userId: string;
-  instituteId: string;
-  role: "owner" | "staff" | "teacher" | "student";
-};
+ 
 
 function sessionDateToInstant(sessionDate: string): Temporal.Instant {
   return Temporal.Instant.from(`${sessionDate}T00:00:00Z`);
@@ -75,6 +71,20 @@ async function verifyClassAccess(auth: AuthContext, classId: string) {
 
     if (classItem.teacherId !== teacher.id) {
       throw new Error("You do not have access to this class");
+    }
+  }
+
+  if (auth.role === "student") {
+    const student = await getCurrentStudent(auth);
+
+    const enrollment = await db.orm.public.Enrollment.first({
+      instituteId: auth.instituteId,
+      studentId: student.id,
+      classId,
+    });
+
+    if (!enrollment || enrollment.status !== "active") {
+      throw new Error("You are not actively enrolled in this class");
     }
   }
 

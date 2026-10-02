@@ -1,0 +1,281 @@
+[
+  {
+    "id": "table.learningContent",
+    "label": "Create table \"learningContent\"",
+    "summary": "Creates table \"learningContent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "learningContent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"learningContent\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"learningContent\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"learningContent\"",
+        "sql": "CREATE TABLE \"public\".\"learningContent\" (\n  \"classId\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"description\" text,\n  \"durationMinutes\" integer,\n  \"fileUrl\" text,\n  \"id\" text NOT NULL,\n  \"instituteId\" text NOT NULL,\n  \"isPublished\" boolean DEFAULT false NOT NULL,\n  \"publishedAt\" timestamptz,\n  \"sortOrder\" integer DEFAULT 0 NOT NULL,\n  \"thumbnailUrl\" text,\n  \"title\" text NOT NULL,\n  \"contentType\" text NOT NULL,\n  \"updatedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"learningContent_contentType_check\" CHECK (\"contentType\" IN ('video', 'note', 'paper', 'other'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"learningContent\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"learningContent\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.learningContent.learningContent_id_instituteId_key",
+    "label": "Add unique constraint on \"learningContent\" (id, instituteId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "learningContent_id_instituteId_key",
+        "table": "learningContent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"learningContent_id_instituteId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "learningContent_id_instituteId_key",
+          "public",
+          "\"public\".\"learningContent\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"learningContent_id_instituteId_key\"",
+        "sql": "ALTER TABLE \"public\".\"learningContent\" ADD CONSTRAINT \"learningContent_id_instituteId_key\" UNIQUE (\"id\", \"instituteId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"learningContent_id_instituteId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "learningContent_id_instituteId_key",
+          "public",
+          "\"public\".\"learningContent\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.learningContent.learningContent_instituteId_classId_idx",
+    "label": "Create index \"learningContent_instituteId_classId_idx\" on \"learningContent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "learningContent_instituteId_classId_idx",
+        "table": "learningContent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"learningContent_instituteId_classId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"learningContent_instituteId_classId_idx\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"learningContent_instituteId_classId_idx\"",
+        "sql": "CREATE INDEX \"learningContent_instituteId_classId_idx\" ON \"public\".\"learningContent\" (\"instituteId\", \"classId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"learningContent_instituteId_classId_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"learningContent_instituteId_classId_idx\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.learningContent.learningContent_instituteId_contentType_idx",
+    "label": "Create index \"learningContent_instituteId_contentType_idx\" on \"learningContent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "learningContent_instituteId_contentType_idx",
+        "table": "learningContent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"learningContent_instituteId_contentType_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"learningContent_instituteId_contentType_idx\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"learningContent_instituteId_contentType_idx\"",
+        "sql": "CREATE INDEX \"learningContent_instituteId_contentType_idx\" ON \"public\".\"learningContent\" (\"instituteId\", \"contentType\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"learningContent_instituteId_contentType_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"learningContent_instituteId_contentType_idx\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.learningContent.learningContent_instituteId_isPublished_idx",
+    "label": "Create index \"learningContent_instituteId_isPublished_idx\" on \"learningContent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "learningContent_instituteId_isPublished_idx",
+        "table": "learningContent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"learningContent_instituteId_isPublished_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"learningContent_instituteId_isPublished_idx\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"learningContent_instituteId_isPublished_idx\"",
+        "sql": "CREATE INDEX \"learningContent_instituteId_isPublished_idx\" ON \"public\".\"learningContent\" (\"instituteId\", \"isPublished\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"learningContent_instituteId_isPublished_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"learningContent_instituteId_isPublished_idx\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.learningContent.learningContent_instituteId_sortOrder_idx",
+    "label": "Create index \"learningContent_instituteId_sortOrder_idx\" on \"learningContent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "learningContent_instituteId_sortOrder_idx",
+        "table": "learningContent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"learningContent_instituteId_sortOrder_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"learningContent_instituteId_sortOrder_idx\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"learningContent_instituteId_sortOrder_idx\"",
+        "sql": "CREATE INDEX \"learningContent_instituteId_sortOrder_idx\" ON \"public\".\"learningContent\" (\"instituteId\", \"sortOrder\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"learningContent_instituteId_sortOrder_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"learningContent_instituteId_sortOrder_idx\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.learningContent.learningContent_classId_instituteId_fkey",
+    "label": "Add foreign key \"learningContent_classId_instituteId_fkey\" on \"learningContent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "learningContent_classId_instituteId_fkey",
+        "table": "learningContent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"learningContent_classId_instituteId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "learningContent_classId_instituteId_fkey",
+          "public",
+          "\"public\".\"learningContent\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"learningContent_classId_instituteId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"learningContent\"\nADD CONSTRAINT \"learningContent_classId_instituteId_fkey\"\nFOREIGN KEY (\"classId\", \"instituteId\")\nREFERENCES \"public\".\"class\" (\"id\", \"instituteId\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"learningContent_classId_instituteId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "learningContent_classId_instituteId_fkey",
+          "public",
+          "\"public\".\"learningContent\""
+        ]
+      }
+    ]
+  }
+]
